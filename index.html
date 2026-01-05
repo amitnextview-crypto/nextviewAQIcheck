@@ -22,28 +22,26 @@ body{
 
 /* ===== TOP BAR ===== */
 .topbar{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:18px 28px;
-  background:linear-gradient(135deg,#111827,#020617);
-  box-shadow:0 10px 40px rgba(0,0,0,0.6);
-}
-
-.topbar img{
-  width:48px;
-  height:48px;
-  object-fit:contain;
+  padding:22px;
+  background:linear-gradient(135deg,#020617,#111827);
+  text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
 }
 
 .topbar h1{
-  font-size:20px;
-  font-weight:600;
+  font-size:24px;
+  font-weight:700;
+  background:linear-gradient(90deg,#00ffff,#ff3c3c,#3b82f6,#facc15,#ec4899,#4ade80);
+  background-size:400% 400%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradientMove 8s infinite;
 }
 
-.topbar span{
-  font-size:13px;
-  opacity:0.8;
+@keyframes gradientMove{
+  0%{background-position:0%}
+  50%{background-position:100%}
+  100%{background-position:0%}
 }
 
 /* ===== MAIN ===== */
@@ -53,85 +51,112 @@ body{
   padding:0 20px;
 }
 
-.title{
-  margin-bottom:25px;
-}
-
-.title h2{
-  font-size:26px;
-}
-
-.title p{
-  opacity:0.7;
-  font-size:14px;
-  margin-top:4px;
-}
-
 /* ===== AQI CARD ===== */
 .aqi-card{
-  background:linear-gradient(180deg,#3b2c1f,#a86b2f);
   border-radius:28px;
-  padding:30px;
+  padding:34px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 40px 80px rgba(0,0,0,0.6);
+  box-shadow:0 40px 80px rgba(0,0,0,.6);
+  animation:bgPulse 5s infinite alternate, gradientShift 12s linear infinite;
+  background-size:200% 200%;
+}
+
+@keyframes bgPulse{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.18)}
+}
+
+@keyframes gradientShift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
 /* LEFT */
-.aqi-left h3{
-  font-size:14px;
-  opacity:0.85;
+.card-title{
+  font-size:22px;
+  font-weight:600;
+}
+
+.card-sub{
+  font-size:13px;
+  opacity:.75;
+  margin-bottom:14px;
+}
+
+.live{
+  display:inline-block;
+  background:#ff3c3c;
+  font-size:11px;
+  padding:4px 12px;
+  border-radius:20px;
+  margin-bottom:6px;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.4}
 }
 
 .aqi-value{
   font-size:64px;
   font-weight:700;
-  margin:10px 0;
+  margin:8px 0;
 }
 
 .status{
   display:inline-block;
   padding:6px 14px;
   border-radius:20px;
-  background:rgba(0,0,0,0.25);
   font-size:14px;
+  background:rgba(0,0,0,.3);
 }
 
-/* POLLUTANTS */
 .pollutants{
-  margin-top:20px;
+  margin-top:18px;
   display:flex;
   gap:30px;
-}
-
-.pollutants div{
   font-size:14px;
 }
 
-/* RIGHT */
+/* RIGHT WEATHER BOX */
 .weather-box{
-  background:rgba(0,0,0,0.25);
-  padding:20px;
-  border-radius:20px;
-  min-width:240px;
+  background:rgba(0,0,0,.25);
+  padding:26px;
+  border-radius:22px;
+  min-width:300px;
+  min-height:260px;
 }
 
 .weather-box h4{
   font-size:22px;
 }
 
-.weather-box p{
-  font-size:14px;
-  opacity:0.8;
-  margin-top:4px;
+.weather-main{
+  font-size:28px;
+  font-weight:600;
+  margin:10px 0;
 }
 
-/* FOOT */
+.weather-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  font-size:14px;
+}
+
+.weather-grid span{
+  opacity:.75;
+}
+
 .footer{
   margin-top:25px;
   font-size:13px;
-  opacity:0.7;
+  opacity:.7;
 }
 
 @media(max-width:900px){
@@ -146,86 +171,100 @@ body{
 
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <img src="assets/logo.png" alt="Nextview Logo">
-  <div>
+  <img src="assets/logo.png" alt="Nextview Technologies INDIA Pvt. Ltd." width="150" height="150">
     <h1>Nextview Technologies INDIA Pvt. Ltd.</h1>
-    <span>Ahmedabad Air Quality Dashboard</span>
+</div>
+
+<div class="container">
+
+<div class="aqi-card" id="card">
+
+<!-- LEFT -->
+<div>
+  <div class="card-title">Ahmedabad Air Quality Index (AQI)</div>
+  <div class="card-sub">Real-time PM2.5 & PM10 air pollution level</div>
+
+  <div class="live">LIVE</div>
+
+  <div class="aqi-value" id="aqi">--</div>
+  <div class="status" id="status">Loading...</div>
+
+  <div class="pollutants">
+    <div>PM2.5: <b id="pm25">--</b> µg/m³</div>
+    <div>PM10: <b id="pm10">--</b> µg/m³</div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="container">
+<!-- RIGHT -->
+<div class="weather-box">
+  <h4>Ahmedabad</h4>
+  <p>Gujarat, India</p>
 
-  <div class="title">
-    <h2>Ahmedabad Air Quality Index (AQI)</h2>
-    <p>Real-time PM2.5 & PM10 air pollution level</p>
+  <div class="weather-main" id="condition">Overcast</div>
+  <div class="weather-main" id="temp">-- °C</div>
+
+  <div class="weather-grid">
+    <div><span>Humidity</span><br><b id="humidity">-- %</b></div>
+    <div><span>Wind Speed</span><br><b id="wind">-- km/h</b></div>
+    <div><span>UV Index</span><br><b id="uv">--</b></div>
   </div>
+</div>
 
-  <div class="aqi-card">
-    
-    <!-- LEFT -->
-    <div class="aqi-left">
-      <h3>LIVE AQI (US)</h3>
-      <div class="aqi-value" id="aqi">--</div>
-      <div class="status" id="status">Loading...</div>
+</div>
 
-      <div class="pollutants">
-        <div>PM2.5: <b id="pm25">--</b> µg/m³</div>
-        <div>PM10: <b id="pm10">--</b> µg/m³</div>
-      </div>
-    </div>
-
-    <!-- RIGHT -->
-    <div class="weather-box">
-      <h4>Ahmedabad</h4>
-      <p>Gujarat, India</p>
-      <p style="margin-top:10px;">Data Source: OpenWeather</p>
-    </div>
-
-  </div>
-
-  <div class="footer">
-    Last updated: <span id="time">--</span>
-  </div>
+<div class="footer">
+Last updated: <span id="time">--</span>
+</div>
 
 </div>
 
 <script>
-const API_KEY = "YOUR_API_KEY_HERE";
-
-/* Ahmedabad Fixed Coordinates */
 const LAT = 23.0225;
 const LON = 72.5714;
 
-async function loadAQI(){
-  const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${API_KEY}`
-  );
-  const data = await res.json();
+const AQI_API =
+`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&hourly=pm2_5,pm10,us_aqi&timezone=auto`;
 
-  const aqi = data.list[0].main.aqi;
-  const pm25 = data.list[0].components.pm2_5;
-  const pm10 = data.list[0].components.pm10;
+const WEATHER_API =
+`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,uv_index&timezone=auto`;
 
-  const levels = [
-    {text:"Good", color:"#2ecc71"},
-    {text:"Fair", color:"#27ae60"},
-    {text:"Moderate", color:"#f1c40f"},
-    {text:"Poor", color:"#e67e22"},
-    {text:"Very Poor", color:"#e74c3c"}
-  ];
+function aqiLevel(aqi){
+  if(aqi<=50) return {t:"Good",bg:"linear-gradient(135deg,#11998e,#38ef7d)",b:"#00e400"};
+  if(aqi<=100) return {t:"Moderate",bg:"linear-gradient(135deg,#f7971e,#ffd200)",b:"#ffd200"};
+  if(aqi<=150) return {t:"Poor",bg:"linear-gradient(135deg,#ff512f,#f09819)",b:"#ff7e00"};
+  if(aqi<=200) return {t:"Unhealthy",bg:"linear-gradient(135deg,#cb2d3e,#ef473a)",b:"#ff0000"};
+  return {t:"Hazardous",bg:"linear-gradient(135deg,#232526,#414345)",b:"#7e0023"};
+}
+
+async function loadData(){
+  const aqiRes = await fetch(AQI_API).then(r=>r.json());
+  const wRes = await fetch(WEATHER_API).then(r=>r.json());
+
+  const i = aqiRes.hourly.time.length - 1;
+  const aqi = aqiRes.hourly.us_aqi[i];
+
+  const lvl = aqiLevel(aqi);
 
   document.getElementById("aqi").innerText = aqi;
-  document.getElementById("status").innerText = levels[aqi-1].text;
-  document.getElementById("status").style.background = levels[aqi-1].color;
-  document.getElementById("pm25").innerText = pm25;
-  document.getElementById("pm10").innerText = pm10;
+  document.getElementById("status").innerText = lvl.t;
+  document.getElementById("pm25").innerText = aqiRes.hourly.pm2_5[i];
+  document.getElementById("pm10").innerText = aqiRes.hourly.pm10[i];
+
+  document.getElementById("card").style.background = lvl.bg;
+  document.getElementById("card").style.border = `4px solid ${lvl.b}`;
+
+  document.getElementById("temp").innerText = wRes.current.temperature_2m + " °C";
+  document.getElementById("humidity").innerText = wRes.current.relative_humidity_2m + " %";
+  document.getElementById("wind").innerText = wRes.current.wind_speed_10m + " km/h";
+  document.getElementById("uv").innerText = wRes.current.uv_index;
+  document.getElementById("condition").innerText = "Overcast";
+
   document.getElementById("time").innerText = new Date().toLocaleString();
 }
 
-loadAQI();
+loadData();
+setInterval(loadData, 10000); // AUTO UPDATE every 10 sec
 </script>
 
 </body>
