@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nextview | Ahmedabad AQI Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#0e1116;
+  color:#fff;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:18px 28px;
+  background:linear-gradient(135deg,#111827,#020617);
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
+}
+
+.topbar img{
+  width:48px;
+  height:48px;
+  object-fit:contain;
+}
+
+.topbar h1{
+  font-size:20px;
+  font-weight:600;
+}
+
+.topbar span{
+  font-size:13px;
+  opacity:0.8;
+}
+
+/* ===== MAIN ===== */
+.container{
+  max-width:1100px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+.title{
+  margin-bottom:25px;
+}
+
+.title h2{
+  font-size:26px;
+}
+
+.title p{
+  opacity:0.7;
+  font-size:14px;
+  margin-top:4px;
+}
+
+/* ===== AQI CARD ===== */
+.aqi-card{
+  background:linear-gradient(180deg,#3b2c1f,#a86b2f);
+  border-radius:28px;
+  padding:30px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 40px 80px rgba(0,0,0,0.6);
+}
+
+/* LEFT */
+.aqi-left h3{
+  font-size:14px;
+  opacity:0.85;
+}
+
+.aqi-value{
+  font-size:64px;
+  font-weight:700;
+  margin:10px 0;
+}
+
+.status{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:20px;
+  background:rgba(0,0,0,0.25);
+  font-size:14px;
+}
+
+/* POLLUTANTS */
+.pollutants{
+  margin-top:20px;
+  display:flex;
+  gap:30px;
+}
+
+.pollutants div{
+  font-size:14px;
+}
+
+/* RIGHT */
+.weather-box{
+  background:rgba(0,0,0,0.25);
+  padding:20px;
+  border-radius:20px;
+  min-width:240px;
+}
+
+.weather-box h4{
+  font-size:22px;
+}
+
+.weather-box p{
+  font-size:14px;
+  opacity:0.8;
+  margin-top:4px;
+}
+
+/* FOOT */
+.footer{
+  margin-top:25px;
+  font-size:13px;
+  opacity:0.7;
+}
+
+@media(max-width:900px){
+  .aqi-card{
+    flex-direction:column;
+    gap:25px;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <img src="assets/logo.png" alt="Nextview Logo">
+  <div>
+    <h1>Nextview Technologies INDIA Pvt. Ltd.</h1>
+    <span>Ahmedabad Air Quality Dashboard</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <div class="title">
+    <h2>Ahmedabad Air Quality Index (AQI)</h2>
+    <p>Real-time PM2.5 & PM10 air pollution level</p>
+  </div>
+
+  <div class="aqi-card">
+    
+    <!-- LEFT -->
+    <div class="aqi-left">
+      <h3>LIVE AQI (US)</h3>
+      <div class="aqi-value" id="aqi">--</div>
+      <div class="status" id="status">Loading...</div>
+
+      <div class="pollutants">
+        <div>PM2.5: <b id="pm25">--</b> µg/m³</div>
+        <div>PM10: <b id="pm10">--</b> µg/m³</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="weather-box">
+      <h4>Ahmedabad</h4>
+      <p>Gujarat, India</p>
+      <p style="margin-top:10px;">Data Source: OpenWeather</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Last updated: <span id="time">--</span>
+  </div>
+
+</div>
+
+<script>
+const API_KEY = "YOUR_API_KEY_HERE";
+
+/* Ahmedabad Fixed Coordinates */
+const LAT = 23.0225;
+const LON = 72.5714;
+
+async function loadAQI(){
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/air_pollution?lat=${LAT}&lon=${LON}&appid=${API_KEY}`
+  );
+  const data = await res.json();
+
+  const aqi = data.list[0].main.aqi;
+  const pm25 = data.list[0].components.pm2_5;
+  const pm10 = data.list[0].components.pm10;
+
+  const levels = [
+    {text:"Good", color:"#2ecc71"},
+    {text:"Fair", color:"#27ae60"},
+    {text:"Moderate", color:"#f1c40f"},
+    {text:"Poor", color:"#e67e22"},
+    {text:"Very Poor", color:"#e74c3c"}
+  ];
+
+  document.getElementById("aqi").innerText = aqi;
+  document.getElementById("status").innerText = levels[aqi-1].text;
+  document.getElementById("status").style.background = levels[aqi-1].color;
+  document.getElementById("pm25").innerText = pm25;
+  document.getElementById("pm10").innerText = pm10;
+  document.getElementById("time").innerText = new Date().toLocaleString();
+}
+
+loadAQI();
+</script>
+
+</body>
+</html>
