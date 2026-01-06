@@ -322,50 +322,66 @@ Last updated: <span id="time">--</span>
 </div>
 
 <script>
-const LAT = 23.0225;
-const LON = 72.5714;
+const isLocal = location.hostname === "localhost" || location.protocol === "file:";
 
-const AQI_API =
-`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&hourly=pm2_5,pm10,us_aqi&timezone=auto`;
+const AQI_API = isLocal
+  ? "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=23.0225&longitude=72.5714&hourly=pm2_5,pm10,us_aqi&timezone=auto"
+  : "/api/aqi";
 
-const WEATHER_API =
-`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,uv_index&timezone=auto`;
+const WEATHER_API = isLocal
+  ? "https://api.open-meteo.com/v1/forecast?latitude=23.0225&longitude=72.5714&current=temperature_2m,relative_humidity_2m,wind_speed_10m,uv_index&timezone=auto"
+  : "/api/weather";
 
-function aqiLevel(aqi){
-  if(aqi<=50) return {t:"Good",bg:"linear-gradient(135deg,#11998e,#38ef7d)",b:"#00e400"};
-  if(aqi<=100) return {t:"Moderate",bg:"linear-gradient(135deg,#f7971e,#ffd200)",b:"#ffd200"};
-  if(aqi<=150) return {t:"Poor",bg:"linear-gradient(135deg,#ff512f,#f09819)",b:"#ff7e00"};
-  if(aqi<=200) return {t:"Unhealthy",bg:"linear-gradient(135deg,#cb2d3e,#ef473a)",b:"#ff0000"};
-  return {t:"Hazardous",bg:"linear-gradient(135deg,#232526,#414345)",b:"#7e0023"};
+const card = document.getElementById("card");
+
+function getJSON(url, cb){
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState === 4 && xhr.status === 200){
+      cb(JSON.parse(xhr.responseText));
+    }
+  };
+  xhr.send();
 }
 
-async function loadData(){
-  const aqiRes = await fetch(AQI_API).then(r=>r.json());
-  const wRes = await fetch(WEATHER_API).then(r=>r.json());
+function aqiLevel(aqi){
+  if(aqi <= 50)   return { t:"Good",      bg:"linear-gradient(135deg,#11998e,#38ef7d)" };
+  if(aqi <= 100)  return { t:"Moderate",  bg:"linear-gradient(135deg,#f7971e,#ffd200)" };
+  if(aqi <= 150)  return { t:"Poor",      bg:"linear-gradient(135deg,#ff512f,#f09819)" };
+  if(aqi <= 200)  return { t:"Unhealthy", bg:"linear-gradient(135deg,#cb2d3e,#ef473a)" };
+  return          { t:"Hazardous", bg:"linear-gradient(135deg,#232526,#414345)" };
+}
 
-  const i = aqiRes.hourly.time.length - 1;
-  const aqi = aqiRes.hourly.us_aqi[i];
-  const lvl = aqiLevel(aqi);
+function loadData(){
+  getJSON(AQI_API, function(aqiRes){
+    getJSON(WEATHER_API, function(wRes){
 
-  aqi.innerText = aqi;
-  document.getElementById("aqi").innerText = aqi;
-  document.getElementById("status").innerText = lvl.t;
-  document.getElementById("pm25").innerText = aqiRes.hourly.pm2_5[i];
-  document.getElementById("pm10").innerText = aqiRes.hourly.pm10[i];
+      const i = aqiRes.hourly.time.length - 1;
+      const aqiVal = aqiRes.hourly.us_aqi[i];
+      const lvl = aqiLevel(aqiVal);
 
-  card.style.background = lvl.bg;
- card.style.border = `4px solid ${lvl.b}`;
+      document.getElementById("aqi").innerText = aqiVal;
+      document.getElementById("status").innerText = lvl.t;
+      document.getElementById("pm25").innerText = aqiRes.hourly.pm2_5[i];
+      document.getElementById("pm10").innerText = aqiRes.hourly.pm10[i];
 
-  document.getElementById("temp").innerText = wRes.current.temperature_2m + " °C";
-  document.getElementById("humidity").innerText = wRes.current.relative_humidity_2m + " %";
-  document.getElementById("wind").innerText = wRes.current.wind_speed_10m + " km/h";
-  document.getElementById("uv").innerText = wRes.current.uv_index;
-  document.getElementById("time").innerText = new Date().toLocaleString();
+      card.style.background = lvl.bg;
+
+      document.getElementById("temp").innerText = wRes.current.temperature_2m + " °C";
+      document.getElementById("humidity").innerText = wRes.current.relative_humidity_2m + " %";
+      document.getElementById("wind").innerText = wRes.current.wind_speed_10m + " km/h";
+      document.getElementById("uv").innerText = wRes.current.uv_index;
+      document.getElementById("time").innerText = new Date().toLocaleString();
+
+    });
+  });
 }
 
 loadData();
-setInterval(loadData,10000);
+setInterval(loadData, 15000);
 </script>
+
 
 </body>
 </html>
